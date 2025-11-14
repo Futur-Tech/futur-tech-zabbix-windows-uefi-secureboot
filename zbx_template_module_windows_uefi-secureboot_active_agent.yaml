@@ -1,0 +1,59 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 0c9841271ce24c7882314d02deb588c2
+      name: 'Templates/Futur-Tech/Modules Windows'
+  templates:
+    - uuid: 0f5d3b7991ad40f4842664e9bdbba75d
+      template: 'Futur-Tech Module Windows UEFI SecureBoot'
+      name: 'Futur-Tech Module Windows UEFI SecureBoot'
+      description: |
+        Detect Secure Boot state on Windows using registry values.
+        
+        https://github.com/Futur-Tech/futur-tech-zabbix-windows-uefi-secureboot
+      vendor:
+        name: Futur-Tech
+        version: 7.0-rev1
+      groups:
+        - name: 'Templates/Futur-Tech/Modules Windows'
+      items:
+        - uuid: 4b6240e59a5a4c1a913d1cb0a094553d
+          name: 'Secure Boot status'
+          type: ZABBIX_ACTIVE
+          key: 'registry.data["HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\State","UEFISecureBootEnabled"]'
+          delay: 3h
+          description: |
+            Secure Boot: 0 = Disabled, 1 = Enabled
+            If registry value not found then we assume Secure Boot is disabled.
+          valuemap:
+            name: 'Secure Boot state'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 7b6c52409b5b4eefbd1bd42f829ef59e
+              expression: 'last(/Futur-Tech Module Windows UEFI SecureBoot/registry.data["HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\State","UEFISecureBootEnabled"])=0'
+              name: 'Secure Boot is disabled'
+              priority: AVERAGE
+              description: 'Secure Boot is disabled.'
+              tags:
+                - tag: scope
+                  value: security
+      tags:
+        - tag: class
+          value: os
+        - tag: Futur-Tech
+        - tag: target
+          value: windows
+      valuemaps:
+        - uuid: 8f52c272acdd4787bf56d792f82d66ff
+          name: 'Secure Boot state'
+          mappings:
+            - value: '0'
+              newvalue: Disabled
+            - value: '1'
+              newvalue: Enabled
