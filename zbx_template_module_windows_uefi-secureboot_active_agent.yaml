@@ -24,7 +24,7 @@ zabbix_export:
           delay: 3h
           description: |
             Secure Boot: 0 = Disabled, 1 = Enabled
-            If registry value not found then we assume Secure Boot is disabled.
+            If the registry value is not found, we can assume that the firmware is Legacy BIOS (and Secure Boot is a UEFI feature.)
           valuemap:
             name: 'Secure Boot state'
           preprocessing:
@@ -39,7 +39,7 @@ zabbix_export:
               expression: 'last(/Futur-Tech Module Windows UEFI SecureBoot/registry.data["HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\State","UEFISecureBootEnabled"])=0'
               name: 'Secure Boot is disabled'
               priority: AVERAGE
-              description: 'Secure Boot is disabled.'
+              description: 'Host firmware is probably UEFI and Secure Boot should be enabled.'
               tags:
                 - tag: scope
                   value: security
